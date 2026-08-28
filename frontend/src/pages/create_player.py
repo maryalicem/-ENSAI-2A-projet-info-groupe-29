@@ -20,7 +20,7 @@ logger = get_page_logger("create_player")
 username = st.text_input("Username", max_chars=30)
 password = st.text_input("Password", type="password")
 
-is_pwd_long_enough = len(password) >= os.environ["PASSWORD_MIN_LENGTH"]
+is_pwd_long_enough = len(password) >= int(os.environ["PASSWORD_MIN_LENGTH"])
 st.write("✅" if is_pwd_long_enough else "❌", "At least 16 characters")
 
 elo = st.number_input("Elo", min_value=1000, max_value=3000)
