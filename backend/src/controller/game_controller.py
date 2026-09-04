@@ -25,19 +25,28 @@ def play_game(
         game_service (GameService): Service handling game logic.
         current_player (Player): The authenticated user.
     Returns:
-        dict: Match summary including player usernames, result, winner,
+        GameResponse: Match summary including player usernames, result, winner,
             and updated ELO ratings.
     Raises:
         HTTPException: 401 if unauthenticated, 400 if invalid request.
     """
     logger.info("Play a game")
-    res = game_service.play(current_player.id_player, req.id_opponent, **req.params)
+    
+    # Appel de la méthode play() avec req.game_mode en 3ème position
+    # (On conserve **req.params à la fin si le modèle attend d'autres paramètres futurs)
+    game = game_service.play(
+        current_player.id_player, 
+        req.id_opponent, 
+        req.game_mode, 
+        **req.params if hasattr(req, 'params') and req.params else {}
+    )
 
+    # Utilisation de l'objet Game retourné pour hydrater le GameResponse
     return GameResponse(
-        username1=res["player1"],
-        username2=res["player2"],
-        description=res["description"],
-        winner=res["winner"],
-        new_elo1=res["new_elo1"],
-        new_elo2=res["new_elo2"],
+        username1=game.player1.username,
+        username2=game.player2.username,
+        description=game.description,
+        winner=game.winner.username if game.winner else None,
+        new_elo1=game.player1.elo,
+        new_elo2=game.player2.elo,
     )
